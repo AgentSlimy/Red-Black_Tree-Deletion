@@ -1,13 +1,9 @@
 //Author: Nathan Zou
-//Date: 5/8/22
-//Red Black Tree - Insertion, insert nodes into a Red Black Tree and print them out
+//Date: 5/29/22
+//Red Black Tree - Deletion, part 2 of Red-Black Tree project, delete nodes and search for values
 //Done with help from: Chris Zou and Stefan Ene
 /* Other resources used:
-   Previously completed Binary Search Tree: https://github.com/AgentSlimy/Binary-Search-Tree
-   Red-Black Tree Insertion: https://www.geeksforgeeks.org/red-black-tree-set-1-introduction-2/
-                             https://www.geeksforgeeks.org/c-program-red-black-tree-insertion/
-                             https://www.geeksforgeeks.org/red-black-tree-set-2-insert/
-   Tree Rotation: https://en.wikipedia.org/wiki/Tree_rotation
+   Previously completed Red-Black_Tree-Insertion: https://github.com/AgentSlimy/Red-Black_Tree-Insertion
 */
 
 #include <iostream>
@@ -45,6 +41,7 @@ void PARSE(char* in, int* modify, int& count);
 void ADD(Node*& head, Node*& current, Node*& previous, int value);
 void FADD(Node*& head);
 void PRINT(Node* root, Trunk* previous, bool isLeft);
+void SEARCH(Node* current, int& data);
 
 void BALANCE(Node*& head, Node*& current);
 void rotateLeft(Node*& head, Node*& current);
@@ -54,9 +51,10 @@ int main() {
     cout << "Red-Black Tree: Insertion" << endl << endl;
     bool running = true;
     char command[15];
+    int searchInput;
     Node* head = NULL;
     while (running == true) {
-        cout << "Options: Add, FAdd, Print, Quit" << endl;
+        cout << "Options: Add, FAdd, Print, Search, Delete, Quit" << endl;
         cin.get(command, 15);
         cin.clear();
         cin.ignore(10000, '\n');
@@ -82,6 +80,21 @@ int main() {
             PRINT(head, NULL, false);
             cout << endl;
         }
+	else if (strcmp(command, "Search") == 0) { //Search command, search for values in tree
+	  if (head == NULL) {
+	    cout << endl << "Tree is empty, no values to search for." << endl << endl;
+	  }
+	  else {
+	    cout << "Search Value >> ";
+	    cin >> searchInput;
+	    cin.clear();
+	    cin.ignore(10000, '\n');
+	    SEARCH(head, searchInput);
+	  }
+	}
+	else if (strcmp(command, "Delete") == 0) { //Delete command, delete values from tree
+	  
+	}
         else if (strcmp(command, "Quit") == 0) { //Quit command, quits
             cout << endl << "Quitting Red-Black Tree: Insertion Edition" << endl;
             running = false;
@@ -238,6 +251,30 @@ void PARSE(char* in, int* modify, int& count) { //Parse function, takes in input
                 count++;
             }
         }
+    }
+}
+
+void SEARCH(Node* current, int& data) { //Search function, used to find a specific value in a given tree
+    while (current->getData() != data && current != NULL) {
+        if (current != NULL) {
+            if (current->getData() > data) {
+                current = current->getLeft();
+            }
+            else {
+                current = current->getRight();
+            }
+        }
+        if (current == NULL) {
+            break;
+        }
+    }
+    if (current != NULL) {
+      if (current->getData() == data) { //Number is in the list
+            cout << "The element is present in the list!" << endl << endl;
+        }
+    }
+    else { //Number is not in the list
+        cout << "The element is not present in the list!" << endl << endl;
     }
 }
 
