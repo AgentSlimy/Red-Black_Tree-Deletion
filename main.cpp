@@ -4,6 +4,8 @@
 //Done with help from: Chris Zou and Stefan Ene
 /* Other resources used:
    Previously completed Red-Black_Tree-Insertion: https://github.com/AgentSlimy/Red-Black_Tree-Insertion
+   Deletion: https://www.geeksforgeeks.org/red-black-tree-set-3-delete-2/
+             https://www.programiz.com/dsa/deletion-from-a-red-black-tree
 */
 
 #include <iostream>
@@ -37,18 +39,30 @@ void showTrunks(Trunk* p) { //Uesd for printing
     cout << p->str;
 }
 
+//Basic Tree Functions - Insertion
 void PARSE(char* in, int* modify, int& count);
 void ADD(Node*& head, Node*& current, Node*& previous, int value);
 void FADD(Node*& head);
 void PRINT(Node* root, Trunk* previous, bool isLeft);
+//Basic Tree Functions - Deletion
 void SEARCH(Node* current, int& data);
+void DELETE(Node* &head, Node* &v);
 
+//For Insertion
 void BALANCE(Node*& head, Node*& current);
 void rotateLeft(Node*& head, Node*& current);
 void rotateRight(Node*& head, Node*& current);
 
+//For Deletion
+Node* getSibling(Node* &x);
+Node* successor(Node* &x);
+Node* replaceNode(Node* &x);
+bool hasRedChild(Node* &x);
+void fixDoubleBlack(Node* &head, Node* &x);
+void swapNodeValues(Node* &u, Node* &x);
+
 int main() {
-    cout << "Red-Black Tree: Insertion" << endl << endl;
+    cout << "Red-Black Tree: Deletion" << endl << endl;
     bool running = true;
     char command[15];
     int searchInput;
@@ -96,7 +110,7 @@ int main() {
 	  
 	}
         else if (strcmp(command, "Quit") == 0) { //Quit command, quits
-            cout << endl << "Quitting Red-Black Tree: Insertion Edition" << endl;
+            cout << endl << "Quitting Red-Black Tree: Deletion Edition" << endl;
             running = false;
         }
         else {
@@ -382,4 +396,50 @@ void rotateRight(Node*& head, Node*& current) { //Rotate Right
     }
     leftPointer->setRight(current);
     current->setParent(leftPointer);
+}
+
+void DELETE(Node* &head, Node* &v) {
+  
+}
+
+Node* getSibling(Node* &x) {
+  if (x->getParent() == NULL) {
+    return NULL;
+  }
+  if (x == x->getParent()->getLeft()) {
+    return x->getParent()->getRight();
+  }
+  else {
+    return x->getParent()->getLeft();
+  }
+}
+
+Node* successor(Node* &x) {
+  //Get the left most value of right subtree
+  Node* a = x;
+  while (a->getLeft() != NULL) {
+    a = a->getLeft();
+  }
+  return a;
+}
+
+Node* replaceNode(Node* &x) {
+  //If node has 2 children
+  if (x->getLeft() != NULL && x->getRight() != NULL) {
+    Node* right = x->getRight();
+    return successor(right);
+  }
+  //If node has no children
+  else if (x->getLeft() == NULL && x->getRight() == NULL) {
+    return NULL;
+  }
+  //If node has 1 child
+  else {
+    if (x->getLeft() != NULL) {
+      return x->getLeft();
+    }
+    else {
+      return x->getRight();
+    }
+  }
 }
