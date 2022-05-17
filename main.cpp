@@ -399,6 +399,53 @@ void rotateRight(Node*& head, Node*& current) { //Rotate Right
 }
 
 void DELETE(Node* &head, Node* &v) {
+  Node* u = replaceNode(v);
+  Node* parent = v->getParent();
+  //Bool to track if both are black
+  bool bothBlack = ((u == NULL || u->getColor() == 0) && (v == NULL || v->getColor() == 0));
+
+  //If v has no children
+  if (u == NULL) {
+    if (v == head) {
+      head = NULL;
+    }
+    else {
+      if (bothBlack) {
+	//fixDoubleBlack();
+      }
+      else {
+	//One is red -> make sibling red
+	if (getSibling(v) != NULL) {
+	  getSibling(v)->setColor(1);
+	}
+      }
+      //Delete v from tree
+      if (v == parent->getLeft()) {
+	parent->setLeft(NULL);
+      }
+      else {
+	parent->setRight(NULL);
+      }
+    }
+    v->~Node();
+    return;
+  }
+
+  //If v has 1 child
+  if (v->getRight() == NULL || v->getLeft() == NULL) {
+    if (v == head) {
+      //Value of u goes to v
+      v->setData(u->getData());
+      v->setLeft(NULL);
+      v->setRight(NULL);
+      //Delete u
+      u->~Node();
+    }
+    else {
+      
+    }
+  }
+
   
 }
 
