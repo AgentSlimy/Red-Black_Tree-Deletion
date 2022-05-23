@@ -105,10 +105,10 @@ int main() {
 	    cin.ignore(10000, '\n');
 	    bool present = SEARCH(head, searchInput);
       if (present == 1) {
-        cout << "The element is present in the list!" << endl << endl; 
+        cout << "The element IS present in the list!" << endl << endl; 
       }
       else {
-        cout << "The element is not present in the list!" << endl << endl;
+        cout << "The element IS NOT present in the list!" << endl << endl;
       }
 	  }
 	}
@@ -122,11 +122,11 @@ int main() {
 	    cin >> value;
 	    cin.clear();
 	    cin.ignore(10000, '\n');
-	    bool checkValue = SEARCH(head, value);
+	    bool checkValue = SEARCH(head, value); //Checks if the value is in the tree
 	    if (checkValue == 0) {
-	      cout << endl;
+	      cout << "Value not found, cannot delete." << endl << endl;
 	    }
-	    else {
+	    else { //Value found in tree
 	      //Find node and delete
 	      Node* v = head;
 	      while (v->getData() != value) {
@@ -138,7 +138,7 @@ int main() {
 		}
 	      }
 	      DELETE(head, v);
-        cout << endl;
+	      cout << value << " deleted from tree." << endl << endl;
 	    }
 	  }
 	}
@@ -318,12 +318,10 @@ bool SEARCH(Node* current, int& data) { //Search function, used to find a specif
   if (current != NULL) {
     if (current->getData() == data) { //Number is in the list
       return 1;
-      return true;
     }
   }
   else { //Number is not in the list
     return 0;
-    return false;
   }
   return 0;
 }
@@ -447,7 +445,7 @@ void DELETE(Node* &head, Node* &x) {
     }
     else {
       if (bothBlack) {
-	//fixDoubleBlack();
+	fixDoubleBlack(head, x);
       }
       else {
 	//One is red -> make sibling red
@@ -489,7 +487,7 @@ void DELETE(Node* &head, Node* &x) {
       x->~Node();
       u->setParent(parent);
       if (bothBlack) {
-	//fixDoubleBlack();
+	fixDoubleBlack(head, x);
       }
       else {
 	//If one is red, color u black
@@ -500,7 +498,7 @@ void DELETE(Node* &head, Node* &x) {
   }
 
   //if x has 2 children
-  //swapNodeValues();
+  swapNodeValues(u, x);
   DELETE(head, u);
 }
 
@@ -543,5 +541,98 @@ Node* replaceNode(Node* &x) {
     else {
       return x->getRight();
     }
+  }
+}
+
+void swapNodeValues(Node* &u, Node* &x) {
+  //Swap the int values between the two given nodes
+  int temp;
+  temp = u->getData();
+  u->setData(x->getData());
+  x->setData(temp);
+}
+
+void fixDoubleBlack(Node* &head, Node* &x) {
+  if (x == head) {
+    return;
+  }
+
+  Node* sibling = getSibling(x);
+  Node* parent = x->getParent();
+
+  if (sibling == NULL) {
+    //If no sibling, push DoubleBlack up
+    fixDoubleBlack(head, parent);
+  }
+  else {
+    if (sibling->getColor() == 1) {
+      //Sibling is red
+      parent->setColor(1); //Red
+      sibling->setColor(0); //Black
+      if (sibling == parent->getLeft()) {
+	rotateRight(head, parent);
+      }
+      else {
+	rotateLeft(head, parent);
+      }
+      fixDoubleBlack(head, parent);
+    }
+    else {
+      //Sibling is black
+      if (hasRedChild(sibling)) {
+	//Has at least 1 red child
+	if (sibling->getLeft() != NULL && sibling->getLeft()->getColor() == 1) {
+	  //Sibling's left child is red
+	  if (sibling == parent->getLeft()) {
+	    //Left of left
+	    sibling->getLeft()->setColor(sibling->getColor());
+	    sibling->setColor(parent->getColor());
+	    rotateRight(head, parent);
+	  }
+	  else {
+	    //Right of left
+	    sibling->getLeft()->setColor(parent->getColor());
+	    rotateRight(head, sibling);
+	    rotateLeft(head, parent);	    
+	  }
+	}
+	else {
+	  //Sibling's right child is red
+	  if (sibling == parent->getLeft()) {
+	    //Left of right
+	    sibling->getRight()->setColor(parent->getColor());
+	    rotateLeft(head, sibling);
+	    rotateRight(head, parent);
+	  }
+	  else {
+	    //Right of right
+	    sibling->getRight()->setColor(sibling->getColor());
+	    sibling->setColor(parent->getColor());
+	    rotateLeft(head, parent);
+	  }
+	}
+	parent->setColor(0); //Black
+      }
+      else {
+	//Two black children
+	sibling->setColor(1); //Red
+	if (parent->getColor() == 0) {
+	  fixDoubleBlack(head, parent);
+	}
+	else {
+	  parent->setColor(0); //Black
+	}
+      }
+    }
+  }
+}
+
+bool hasRedChild(Node* &x) {
+  if (x->getLeft() != NULL && x->getLeft()->getColor() == 1) {
+    return true;
+  } else if (x->getRight() != NULL && x->getRight()->getColor() == 1) {
+    return true;
+  } else {
+    return false;
   }
 }
