@@ -45,7 +45,7 @@ void ADD(Node*& head, Node*& current, Node*& previous, int value);
 void FADD(Node*& head);
 void PRINT(Node* root, Trunk* previous, bool isLeft);
 //Basic Tree Functions - Deletion
-void SEARCH(Node* current, int& data);
+bool SEARCH(Node* current, int& data);
 void DELETE(Node* &head, Node* &v);
 
 //For Insertion
@@ -103,11 +103,44 @@ int main() {
 	    cin >> searchInput;
 	    cin.clear();
 	    cin.ignore(10000, '\n');
-	    SEARCH(head, searchInput);
+	    bool present = SEARCH(head, searchInput);
+      if (present == 1) {
+        cout << "The element is present in the list!" << endl << endl; 
+      }
+      else {
+        cout << "The element is not present in the list!" << endl << endl;
+      }
 	  }
 	}
 	else if (strcmp(command, "Delete") == 0) { //Delete command, delete values from tree
-	  
+	  if (head == NULL) {
+	    cout << endl << "Tree is empty, no values to delete." << endl << endl;
+	  }
+	  else {
+	    int value = 0;
+	    cout << "Value to Delete >> ";
+	    cin >> value;
+	    cin.clear();
+	    cin.ignore(10000, '\n');
+	    bool checkValue = SEARCH(head, value);
+	    if (checkValue == 0) {
+	      cout << endl;
+	    }
+	    else {
+	      //Find node and delete
+	      Node* v = head;
+	      while (v->getData() != value) {
+		if (value < v->getData()) {
+		  v = v->getLeft();
+		}
+		else if (value > v->getData()) {
+		  v = v->getRight();
+		}
+	      }
+	      DELETE(head, v);
+        cout << endl;
+	    }
+	  }
 	}
         else if (strcmp(command, "Quit") == 0) { //Quit command, quits
             cout << endl << "Quitting Red-Black Tree: Deletion Edition" << endl;
@@ -268,28 +301,31 @@ void PARSE(char* in, int* modify, int& count) { //Parse function, takes in input
     }
 }
 
-void SEARCH(Node* current, int& data) { //Search function, used to find a specific value in a given tree
-    while (current->getData() != data && current != NULL) {
-        if (current != NULL) {
-            if (current->getData() > data) {
-                current = current->getLeft();
-            }
-            else {
-                current = current->getRight();
-            }
-        }
-        if (current == NULL) {
-            break;
-        }
-    }
+bool SEARCH(Node* current, int& data) { //Search function, used to find a specific value in a given tree
+  while (current->getData() != data && current != NULL) {
     if (current != NULL) {
-      if (current->getData() == data) { //Number is in the list
-            cout << "The element is present in the list!" << endl << endl;
-        }
+      if (current->getData() > data) {
+        current = current->getLeft();
+      }
+      else {
+	current = current->getRight();
+      }
     }
-    else { //Number is not in the list
-        cout << "The element is not present in the list!" << endl << endl;
+    if (current == NULL) {
+      break;
     }
+  }
+  if (current != NULL) {
+    if (current->getData() == data) { //Number is in the list
+      return 1;
+      return true;
+    }
+  }
+  else { //Number is not in the list
+    return 0;
+    return false;
+  }
+  return 0;
 }
 
 void BALANCE(Node*& head, Node*& current) { //Balance function, for Red-Black Tree properties
@@ -398,15 +434,15 @@ void rotateRight(Node*& head, Node*& current) { //Rotate Right
     current->setParent(leftPointer);
 }
 
-void DELETE(Node* &head, Node* &v) {
-  Node* u = replaceNode(v);
-  Node* parent = v->getParent();
+void DELETE(Node* &head, Node* &x) {
+  Node* u = replaceNode(x);
+  Node* parent = x->getParent();
   //Bool to track if both are black
-  bool bothBlack = ((u == NULL || u->getColor() == 0) && (v == NULL || v->getColor() == 0));
+  bool bothBlack = ((u == NULL || u->getColor() == 0) && (x == NULL || x->getColor() == 0));
 
-  //If v has no children
+  //If x has no children
   if (u == NULL) {
-    if (v == head) {
+    if (x == head) {
       head = NULL;
     }
     else {
@@ -415,38 +451,57 @@ void DELETE(Node* &head, Node* &v) {
       }
       else {
 	//One is red -> make sibling red
-	if (getSibling(v) != NULL) {
-	  getSibling(v)->setColor(1);
+	if (getSibling(x) != NULL) {
+	  getSibling(x)->setColor(1);
 	}
       }
-      //Delete v from tree
-      if (v == parent->getLeft()) {
+      //Delete x from tree
+      if (x == parent->getLeft()) {
 	parent->setLeft(NULL);
       }
       else {
 	parent->setRight(NULL);
       }
     }
-    v->~Node();
+    x->~Node();
     return;
   }
 
-  //If v has 1 child
-  if (v->getRight() == NULL || v->getLeft() == NULL) {
-    if (v == head) {
-      //Value of u goes to v
-      v->setData(u->getData());
-      v->setLeft(NULL);
-      v->setRight(NULL);
+  //If x has 1 child
+  if (x->getRight() == NULL || x->getLeft() == NULL) {
+    if (x == head) {
+      //Value of u goes to x
+      x->setData(u->getData());
+      x->setLeft(NULL);
+      x->setRight(NULL);
       //Delete u
       u->~Node();
     }
     else {
-      
+      //Detach x from tree and move u up
+      if (x == parent->getLeft()) {
+	parent->setLeft(u);
+      }
+      else {
+	parent->setRight(u);
+      }
+      //Delete x
+      x->~Node();
+      u->setParent(parent);
+      if (bothBlack) {
+	//fixDoubleBlack();
+      }
+      else {
+	//If one is red, color u black
+	u->setColor(0);
+      }
     }
+    return;
   }
 
-  
+  //if x has 2 children
+  //swapNodeValues();
+  DELETE(head, u);
 }
 
 Node* getSibling(Node* &x) {
