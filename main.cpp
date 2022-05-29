@@ -6,6 +6,8 @@
    Previously completed Red-Black_Tree-Insertion: https://github.com/AgentSlimy/Red-Black_Tree-Insertion
    Deletion: https://www.geeksforgeeks.org/red-black-tree-set-3-delete-2/
              https://www.programiz.com/dsa/deletion-from-a-red-black-tree
+	     https://medium.com/analytics-vidhya/deletion-in-red-black-rb-tree-92301e1474ea
+	     https://www.youtube.com/watch?v=_c30ot0Kcis
 */
 
 #include <iostream>
@@ -139,6 +141,7 @@ int main() {
 	      }
 	      DELETE(head, v);
 	      cout << value << " deleted from tree." << endl << endl;
+        
 	    }
 	  }
 	}
@@ -553,74 +556,65 @@ void swapNodeValues(Node* &u, Node* &x) {
 }
 
 void fixDoubleBlack(Node* &head, Node* &x) {
-  if (x == head) {
+  if (x == head)
     return;
-  }
 
   Node* sibling = getSibling(x);
   Node* parent = x->getParent();
 
   if (sibling == NULL) {
-    //If no sibling, push DoubleBlack up
+    //if no sibling, push doublebalck up
     fixDoubleBlack(head, parent);
-  }
-  else {
+  } else {
     if (sibling->getColor() == 1) {
-      //Sibling is red
-      parent->setColor(1); //Red
-      sibling->setColor(0); //Black
+      //silbing is red
+      parent->setColor(1); //red
+      sibling->setColor(0); //black
       if (sibling == parent->getLeft()) {
 	rotateRight(head, parent);
-      }
-      else {
+      } else {
 	rotateLeft(head, parent);
       }
-      fixDoubleBlack(head, parent);
-    }
-    else {
-      //Sibling is black
+      fixDoubleBlack(head, x);
+    } else {
+      //sibling is black
       if (hasRedChild(sibling)) {
-	//Has at least 1 red child
+	//has at least 1 red child
 	if (sibling->getLeft() != NULL && sibling->getLeft()->getColor() == 1) {
-	  //Sibling's left child is red
+	  //sibling's left child is red
 	  if (sibling == parent->getLeft()) {
-	    //Left of left
+	    //left left
 	    sibling->getLeft()->setColor(sibling->getColor());
 	    sibling->setColor(parent->getColor());
 	    rotateRight(head, parent);
-	  }
-	  else {
-	    //Right of left
+	  } else {
+	    //right left
 	    sibling->getLeft()->setColor(parent->getColor());
 	    rotateRight(head, sibling);
-	    rotateLeft(head, parent);	    
+	    rotateLeft(head, parent);
 	  }
-	}
-	else {
-	  //Sibling's right child is red
+	} else {
+	  //sibling's right child is red
 	  if (sibling == parent->getLeft()) {
-	    //Left of right
+	    //left right
 	    sibling->getRight()->setColor(parent->getColor());
 	    rotateLeft(head, sibling);
 	    rotateRight(head, parent);
-	  }
-	  else {
-	    //Right of right
+	  } else {
+	    //right right
 	    sibling->getRight()->setColor(sibling->getColor());
 	    sibling->setColor(parent->getColor());
 	    rotateLeft(head, parent);
 	  }
 	}
-	parent->setColor(0); //Black
-      }
-      else {
-	//Two black children
-	sibling->setColor(1); //Red
+	parent->setColor(0); //black
+      } else {
+	//two black children
+	sibling->setColor(1); //red
 	if (parent->getColor() == 0) {
-	  fixDoubleBlack(head, parent);
-	}
-	else {
-	  parent->setColor(0); //Black
+	  fixDoubleBlack(head, parent); //recursion
+	} else {
+	  parent->setColor(0); //black
 	}
       }
     }
